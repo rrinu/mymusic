@@ -1,22 +1,33 @@
-import React from "react";
-import './Playlist.css';
-import {TrackList} from '../TrackList/TrackList';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, {useState} from 'react'
+import './Playlist.css'
+import Track from '../Track/Track'
 
-export class Playlist extends React.Component{
-    constructor(props){
-        super(props);
-        this.handleNameChange=this.handleNameChange.bind(this);
-    }
-    handleNameChange(event){
-        this.props.onNameChange(event.target.value);
-    }
-    render(){
-        return(
-<div className="Playlist">
-  <input value={this.props.playlistName} onChange={this.handleNameChange} />
-  <TrackList tracks={this.props.playlistTracks}  onRemove={this.props.onRemove} isRemoval={true} />
-  <button className="Playlist-save" onClick={this.props.onSave}>SAVE TO SPOTIFY</button>
-</div>
-        );
-    }
+function Playlist(props) {
+
+const [playlistName, setPlaylistName] = useState("New Playlist");
+
+async function handleSave() {
+    const trackIds = props.tracks.map(t => t.id)
+    props.createSpotifyPlaylist(playlistName, trackIds)
 }
+    return (
+        <div className="Playlist">
+            <input onChange={e => setPlaylistName(e.target.value)} placeholder={playlistName} />
+            <div className="TrackList">
+            {
+                props.tracks.map(track => {
+                    return(<Track 
+                        key={track.id}
+                        track={track}
+                        trackActionCharacter="-"
+                        handleTrackAction={props.removeTrackFromPlaylist} />)
+                })
+            }
+            </div>
+            <a className="Playlist-save" onClick={handleSave}>SAVE TO SPOTIFY</a>
+        </div>
+    )
+}
+
+export default Playlist;

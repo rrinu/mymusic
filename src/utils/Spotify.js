@@ -1,12 +1,12 @@
 class Spotify {
     static async search(searchTerm, token) {
-        let url = `https://api.spotify.com/v1/search?q=${searchTerm}&type=track`
-        let response = await fetch(url, {
+        const url = `https://api.spotify.com/v1/search?q=${searchTerm}&type=track`
+        const response = await fetch(url, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        let jsonResponse = await response.json();
+        const jsonResponse = await response.json();
         if (jsonResponse.tracks.items) {
             return jsonResponse.tracks.items.map(track => {
                 return {

@@ -1,25 +1,47 @@
-import React from "react";
-import './SearchBar.css';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, {useState, useEffect} from 'react'
+import './SearchBar.css'
 
-export class SearchBar extends React.Component{
-    constructor(props){
-        super(props);
-        this.state={term:''}
-        this.search=this.search.bind(this);
-        this.handleTermChange=this.handleTermChange.bind(this);
+function SearchBar(props) {
+  const initialSearchTerm = () => String(window.localStorage.getItem('searchTerm') || "")
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+
+  useEffect(() => {
+    window.localStorage.setItem('searchTerm', searchTerm);
+  }, [searchTerm])
+
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm);
+  }, []);
+
+
+  async function handleSearch() {
+    try {
+      await props.searchSpotify(searchTerm); 
+    } catch (error) {
+      console.warn(error)
+      const clientId = '0744a9d113234aed9830ca9b36b3be57';
+      const currentUrl = window.location.href;
+      window.location.href = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${currentUrl}`;
     }
-    search(){
-        this.props.onSearch(this.state.term);
-        }
-    handleTermChange(event){
-        this.setState({term:event.target.value});
+  }
+
+  async function handleKeyPress(e) {
+    if (e.key === "Enter") {
+      await handleSearch();
     }
-    render(){
-        return (
-<div className="SearchBar">
-  <input placeholder="Enter A Song, Album, or Artist" onChange={this.handleTermChange} />
-  <button onClick={this.search} className="SearchButton">SEARCH</button>
-</div>
-        );
+  }
+
+  return (
+      <div className="SearchBar">
+      <input 
+        onChange={e => setSearchTerm(e.target.value)}
+        onKeyPress={handleKeyPress}
+        placeholder="Enter A Song Title"
+        value={searchTerm} />
+      <a onClick={handleSearch}>SEARCH</a>
+    </div>
+  )
 }
-}
+
+export default SearchBar;
